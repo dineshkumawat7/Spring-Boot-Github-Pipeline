@@ -114,6 +114,5 @@ jobs:
           context: .                   # Use repository root as build context
           file: Dockerfile             # Dockerfile path
           tags: |
-            ${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }} dkumawat7627/${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
           push: true                   # Push the image after building
