@@ -112,7 +112,7 @@ jobs:
         with:
           context: .                   # Use repository root as build context
           file: Dockerfile             # Dockerfile path
-          push: true                   # Push the image after building
           tags: |
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:latest
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
+          push: true                   # Push the image after building
