@@ -24,6 +24,17 @@ on:
         description: "Specify Docker image tag to deploy (optional)"
         required: false
 
+# ------------------------------------------------------------
+# GLOBAL ENVIRONMENT VARIABLES
+# ------------------------------------------------------------
+env:
+  JAVA_VERSION: 21
+  REGISTRY: docker.io                             # Docker registry to push images to
+  GITHUB_REPOSITORY: ${{ github.repository }}     # Use the GitHub repository name as image name
+  IMAGE_TAG: ${{ github.sha }}                    # Use commit SHA as a unique image tag
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
 jobs:
   deploy:
     name: Deploy Application
