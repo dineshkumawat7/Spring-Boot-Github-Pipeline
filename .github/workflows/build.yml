@@ -27,7 +27,7 @@ on:
 env:
   JAVA_VERSION: 21
   REGISTRY: docker.io                             # Docker registry to push images to
-  IMAGE_NAME: ${{ github.repository | toLower }}  # Use the GitHub repository name as image name
+  IMAGE_NAME: ${{ github.repository }}            # Use the GitHub repository name as image name
   IMAGE_TAG: ${{ github.sha }}                    # Use commit SHA as a unique image tag
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -100,11 +100,12 @@ jobs:
       # STEP 8: Build, Tag & Push Docker Image
       # ------------------------------------------------------------
       - name: Build, Tag & Push Docker Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v
         with:
           context: .                   # Use repository root as build context
-          file: Dockerfile       # Dockerfile path
+          file: Dockerfile             # Dockerfile path
           push: true                   # Push the image after building
+          run: echo "IMAGE_NAME_LOWER_CASE=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           tags: |
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:latest
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
