@@ -19,7 +19,7 @@ public class MainController {
     public ResponseEntity<Map<String, Object>> status(){
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("status", "Running");
-        log.info("Returning response for status: {}", status);
+        log.info("Returning response: {}", status);
         return ResponseEntity.status(HttpStatus.OK).body(status);
     }
 }
