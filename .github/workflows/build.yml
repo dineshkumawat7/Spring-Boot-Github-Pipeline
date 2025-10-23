@@ -1,0 +1,122 @@
+# ============================================================
+# SPRING BOOT BUILD PIPELINE
+# ------------------------------------------------------------
+# This GitHub Actions workflow automates:
+# 1. Building a Spring Boot project with Maven
+# 2. Running unit tests
+# 3. Packaging the application JAR
+# 4. Building and pushing a Docker image to Docker Hub
+# ============================================================
+name: Spring Boot Build Pipeline
+
+# ------------------------------------------------------------
+# TRIGGERS
+# Run this workflow on:
+#  - Pushes to the main or master branches
+#  - Pull requests targeting main or master
+# ------------------------------------------------------------
+on:
+  push:
+    branches: [ main, master]
+  pull_request:
+    branches: [ main, master]
+
+# ------------------------------------------------------------
+# GLOBAL ENVIRONMENT VARIABLES
+# ------------------------------------------------------------
+env:
+  JAVA_VERSION: 21
+  REGISTRY: docker.io                             # Docker registry to push images to
+  GITHUB_REPOSITORY: ${{ github.repository }}     # Use the GitHub repository name as image name
+  IMAGE_TAG: "${GITHUB_SHA::7}"                   # Use commit SHA as a unique image tag
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+# ============================================================
+# JOB: BUILD
+# ------------------------------------------------------------
+# This job runs on an Ubuntu runner and performs:
+# - Code checkout
+# - Java setup
+# - Maven build & test
+# - Docker image build & push
+# ============================================================
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      # ------------------------------------------------------------
+      # STEP 1: Checkout Source Code
+      # ------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------
+      # STEP 2: Set Up Java Development Kit (JDK)
+      # ------------------------------------------------------------
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'         # OpenJDK build by Eclipse Temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'maven'                  # Cache Maven dependencies for faster builds
+
+      # ------------------------------------------------------------
+      # STEP 3: Compile Source Code
+      # ------------------------------------------------------------
+      - name: Build Source Code
+        run: mvn -B clean compile --file pom.xml
+
+      # ------------------------------------------------------------
+      # STEP 4: Run Unit Tests
+      # ------------------------------------------------------------
+      - name: Run Unit Tests
+        run: mvn -B test --file pom.xml
+
+      # ------------------------------------------------------------
+      # STEP 5: Package Application (skip tests since already ran)
+      # ------------------------------------------------------------
+      - name: Package Application
+        run: mvn -B package -DskipTests --file pom.xml
+
+      # ------------------------------------------------------------
+      # STEP 6: Set Up Docker Build Environment
+      # ------------------------------------------------------------
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      # ------------------------------------------------------------
+      # STEP 7: Log In to Docker Hub
+      # ------------------------------------------------------------
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # ------------------------------------------------------------
+      # STEP 8: Normalize the image name (lowercase) and set an env var
+      # ------------------------------------------------------------
+      - name: Normalize Image Name
+        run: |
+          REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
+          IMAGE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "DockerHub image name normalized to: $IMAGE_NAME"
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+
+      # ------------------------------------------------------------
+      # STEP 9: Build, Tag & Push Docker Image
+      # ------------------------------------------------------------
+      - name: Build, Tag & Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .                   # Use repository root as build context
+          file: Dockerfile             # Dockerfile path
+          tags: |
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          push: true                   # Push the image after building

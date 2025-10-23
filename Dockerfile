@@ -1,7 +1,6 @@
 # ============================================
 # Stage 1: Build the Spring Boot application
 # ============================================
-
 # Base Image: Maven with Eclipse Temurin JDK 21
 # - 'maven:3.9.9-eclipse-temurin-21' includes Maven 3.9.9 and JDK 21 (Temurin distribution)
 # - Ideal for building Java applications using Maven
@@ -20,19 +19,18 @@ WORKDIR /app
 COPY pom.xml ./
 
 # Download Maven dependencies (cached for faster builds)
-RUN mvn -B dependency:go-offline -e -X
+RUN mvn -B dependency:go-offline -e
 
 # Copy the rest of the source code into the container
 COPY src ./src
 
 # Package the application (skip tests for faster image build)
 # # -e enables error details, -X enables full debug logs
-RUN mvn clean package -DskipTests -e -X
+RUN mvn clean package -DskipTests -e
 
 # =============================================
 # Stage 2: Create a lightweight runtime image
 # =============================================
-
 # Base Image: Eclipse Temurin JRE 21 on Alpine Linux
 # - 'eclipse-temurin:21-jre-alpine' provides a small, optimized Java runtime (no compiler)
 # - Suitable for running already-built JAR files
