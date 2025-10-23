@@ -103,7 +103,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .                   # Use repository root as build context
-          dockerfile: Dockerfile       # Dockerfile path
+          file: Dockerfile       # Dockerfile path
           push: true                   # Push the image after building
           tags: |
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
