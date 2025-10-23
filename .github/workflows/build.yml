@@ -84,7 +84,7 @@ jobs:
       # STEP 6: Set Up Docker Build Environment
       # ------------------------------------------------------------
       - name: Set up Docker
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v3
 
       # ------------------------------------------------------------
       # STEP 7: Log In to Docker Hub
