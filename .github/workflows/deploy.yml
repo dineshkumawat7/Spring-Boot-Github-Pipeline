@@ -1,0 +1,56 @@
+# ============================================================
+# SPRING BOOT DEPLOY PIPELINE
+# ------------------------------------------------------------
+# This GitHub Actions workflow automates:
+# 1. Pulls the latest Docker image from Docker Hub
+# 2. Runs (or updates) the container on the target environment
+# ============================================================
+name: Spring Boot Deploy Pipeline
+
+# ------------------------------------------------------------
+# TRIGGERS
+# - Runs when the build pipeline succeeds (on workflow_run)
+# - OR manually via the workflow_dispatch event
+# ------------------------------------------------------------
+
+on:
+  workflow_run:
+    workflows: ["Spring Boot Build Pipeline"]
+    types:
+      - completed
+  workflow_dispatch:                           # Manual trigger option
+    inputs:
+      image_tag:
+        description: "Specify Docker image tag to deploy (optional)"
+        required: false
+
+  # ------------------------------------------------------------
+  # GLOBAL ENVIRONMENT VARIABLES
+  # ------------------------------------------------------------
+  env:
+    REGISTRY: docker.io
+    IMAGE_NAME: ${{ github.repository }}
+    DEPLOY_TAG: ${{ github.event.inputs.image_tag || 'latest' }}
+
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    steps:
+      # ------------------------------------------------------------
+      # STEP 1: Log In to Docker Hub
+      # ------------------------------------------------------------
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # ------------------------------------------------------------
+      # STEP 2: Pull the Docker Image
+      # ------------------------------------------------------------
+      - name: Pull Docker Image
+        run: |
+          echo "Pulling image from DockerHub: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.DEPLOY_TAG }}"
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.DEPLOY_TAG }}
