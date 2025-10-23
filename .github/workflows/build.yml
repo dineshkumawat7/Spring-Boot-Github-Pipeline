@@ -113,7 +113,6 @@ jobs:
           context: .                   # Use repository root as build context
           file: Dockerfile             # Dockerfile path
           push: true                   # Push the image after building
-          run: echo "IMAGE_NAME_LOWER_CASE=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           tags: |
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:latest
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME_LOWER_CASE }}:${{ env.IMAGE_TAG }}
