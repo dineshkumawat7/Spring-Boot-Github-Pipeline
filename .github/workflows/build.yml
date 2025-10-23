@@ -97,7 +97,15 @@ jobs:
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
       # ------------------------------------------------------------
-      # STEP 8: Build, Tag & Push Docker Image
+      # STEP 8: Normalize the image name (lowercase) and set an env var
+      # ------------------------------------------------------------
+      - name: Normalize Image Name
+        run: echo "IMAGE_NAME_LOWER_CASE=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+
+      # ------------------------------------------------------------
+      # STEP 9: Build, Tag & Push Docker Image
       # ------------------------------------------------------------
       - name: Build, Tag & Push Docker Image
         uses: docker/build-push-action@v4
