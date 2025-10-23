@@ -1,0 +1,25 @@
+# Maven build directories
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Git files
+.git
+.gitignore
+
+# IDE project files
+.idea/
+.vscode/
+*.iml
+
+# Logs and temporary files
+*.log
+tmp/
+logs/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test and coverage files
+test-output/
+coverage/
