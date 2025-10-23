@@ -19,14 +19,14 @@ WORKDIR /app
 COPY pom.xml ./
 
 # Download Maven dependencies (cached for faster builds)
-RUN mvn -B dependency:go-offline -e -X
+RUN mvn -B dependency:go-offline -e
 
 # Copy the rest of the source code into the container
 COPY src ./src
 
 # Package the application (skip tests for faster image build)
 # # -e enables error details, -X enables full debug logs
-RUN mvn clean package -DskipTests -e -X
+RUN mvn clean package -DskipTests -e
 
 # =============================================
 # Stage 2: Create a lightweight runtime image
