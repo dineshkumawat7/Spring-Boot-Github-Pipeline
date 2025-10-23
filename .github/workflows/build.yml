@@ -100,7 +100,7 @@ jobs:
       # STEP 8: Build, Tag & Push Docker Image
       # ------------------------------------------------------------
       - name: Build, Tag & Push Docker Image
-        uses: docker/build-push-action@v
+        uses: docker/build-push-action@v4
         with:
           context: .                   # Use repository root as build context
           file: Dockerfile             # Dockerfile path
