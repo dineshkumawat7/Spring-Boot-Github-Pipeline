@@ -28,7 +28,7 @@ env:
   JAVA_VERSION: 21
   REGISTRY: docker.io                             # Docker registry to push images to
   GITHUB_REPOSITORY: ${{ github.repository }}     # Use the GitHub repository name as image name
-  IMAGE_TAG: "${GITHUB_SHA::7}"                   # Use commit SHA as a unique image tag
+  IMAGE_TAG: ${{ github.sha::0:7 }}               # Use commit SHA as a unique image tag
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
@@ -118,5 +118,5 @@ jobs:
           file: Dockerfile             # Dockerfile path
           tags: |
             ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+            ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           push: true                   # Push the image after building
