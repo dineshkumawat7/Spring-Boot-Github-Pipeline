@@ -31,7 +31,7 @@ env:
   JAVA_VERSION: 21
   REGISTRY: docker.io                             # Docker registry to push images to
   GITHUB_REPOSITORY: ${{ github.repository }}     # Use the GitHub repository name as image name
-  IMAGE_TAG: ${{ github.sha }}                    # Use commit SHA as a unique image tag
+  IMAGE_TAG: "${GITHUB_SHA::7}"                   # Use commit SHA as a unique image tag
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
@@ -57,7 +57,19 @@ jobs:
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
       # ------------------------------------------------------------
-      # STEP 3: Pull the Docker Image
+      # STEP 3: Normalize the image name (lowercase) and set an env var
+      # ------------------------------------------------------------
+      - name: Normalize Image Name
+        run: |
+          REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
+          IMAGE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "DockerHub image name normalized to: $IMAGE_NAME"
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+
+      # ------------------------------------------------------------
+      # STEP 4: Pull the Docker Image
       # ------------------------------------------------------------
       - name: Pull Docker Image
         run: |

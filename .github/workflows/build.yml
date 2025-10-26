@@ -63,31 +63,61 @@ jobs:
           cache: 'maven'                  # Cache Maven dependencies for faster builds
 
       # ------------------------------------------------------------
-      # STEP 3: Compile Source Code
+      # STEP 3: Cache Maven packages
+      # ------------------------------------------------------------
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # ------------------------------------------------------------
+      # STEP 4: Compile Source Code
       # ------------------------------------------------------------
       - name: Build Source Code
         run: mvn -B clean compile --file pom.xml
 
       # ------------------------------------------------------------
-      # STEP 4: Run Unit Tests
+      # STEP 5: Run Unit Tests
       # ------------------------------------------------------------
       - name: Run Unit Tests
         run: mvn -B test --file pom.xml
 
       # ------------------------------------------------------------
-      # STEP 5: Package Application (skip tests since already ran)
+      # STEP 6: Package Application (skip tests since already ran)
       # ------------------------------------------------------------
       - name: Package Application
         run: mvn -B package -DskipTests --file pom.xml
 
       # ------------------------------------------------------------
-      # STEP 6: Set Up Docker Build Environment
+      # STEP 7: Cache SonarQube packages
+      # ------------------------------------------------------------
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # ------------------------------------------------------------
+      # STEP 8: SonarQube scan
+      # ------------------------------------------------------------
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+
+      # ------------------------------------------------------------
+      # STEP 9: Set Up Docker Build Environment
       # ------------------------------------------------------------
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
       # ------------------------------------------------------------
-      # STEP 7: Log In to Docker Hub
+      # STEP 10: Log In to Docker Hub
       # ------------------------------------------------------------
       - name: Log in to DockerHub
         uses: docker/login-action@v3
@@ -97,7 +127,7 @@ jobs:
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
 
       # ------------------------------------------------------------
-      # STEP 8: Normalize the image name (lowercase) and set an env var
+      # STEP 11: Normalize the image name (lowercase) and set an env var
       # ------------------------------------------------------------
       - name: Normalize Image Name
         run: |
@@ -109,7 +139,7 @@ jobs:
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
 
       # ------------------------------------------------------------
-      # STEP 9: Build, Tag & Push Docker Image
+      # STEP 12: Build, Tag & Push Docker Image
       # ------------------------------------------------------------
       - name: Build, Tag & Push Docker Image
         uses: docker/build-push-action@v4
