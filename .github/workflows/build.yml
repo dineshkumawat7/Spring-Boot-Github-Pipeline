@@ -104,15 +104,9 @@ jobs:
       # STEP 8: SonarQube scan
       # ------------------------------------------------------------
       - name: SonarQube Scan
-        uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dineshkumawat-org_spring-boot-github-pipeline
             
 
       # ------------------------------------------------------------
