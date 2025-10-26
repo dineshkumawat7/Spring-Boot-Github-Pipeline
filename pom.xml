@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.pipeline</groupId>
-	<artifactId>Spring-Boot-Github-Pipeline</artifactId>
+	<artifactId>spring-boot-github-pipeline</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Spring-Boot-Github-Pipeline</name>
+	<name>spring-boot-github-pipeline</name>
 	<description>A complete CI/CD pipeline setup for a Spring Boot application using GitHub Actions — automates build, test, Docker image creation, and deployment.</description>
 	<url/>
 	<licenses>
